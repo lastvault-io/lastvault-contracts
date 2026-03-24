@@ -3,8 +3,71 @@
 **Trustless digital inheritance via a Dead-Man's Switch on any EVM chain.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Solidity](https://img.shields.io/badge/Solidity-%5E0.8.20-blue)](https://soliditylang.org/)
-[![Foundry](https://img.shields.io/badge/Built%20with-Foundry-orange)](https://getfoundry.sh/)
+[![Solidity](https://img.shields.io/badge/Solidity-%5E0.8.25-blue)](https://soliditylang.org/)
+[![Fhenix FHE](https://img.shields.io/badge/Fhenix-FHE%20Encrypted-purple)](https://fhenix.io/)
+[![Tests](https://img.shields.io/badge/Tests-7%2F7%20passing-green)]()
+
+> **Fhenix Buildathon Wave 1** — First-ever FHE-encrypted inheritance contract where the heir's identity is completely invisible on-chain.
+
+## Two Contracts
+
+| Contract | Privacy | Status |
+|----------|---------|--------|
+| [`LastVaultInheritance.sol`](src/LastVaultInheritance.sol) | Plaintext heir address + ECIES payload | Deployed on Base |
+| [`LastVaultFHE.sol`](src/LastVaultFHE.sol) | **FHE-encrypted heir (eaddress) + FHE payload (euint128)** | **NEW — Fhenix Buildathon** |
+
+## LastVaultFHE — FHE-Encrypted Inheritance
+
+The heir's identity and vault payload are **fully encrypted on-chain** using Fhenix Fully Homomorphic Encryption — even during computation.
+
+### Privacy Comparison
+
+| Property | Plaintext Contract | LastVaultFHE (Fhenix) |
+|----------|-------------------|----------------------|
+| Heir address | `address public heir` — visible | `eaddress private` — **FHE-encrypted** |
+| Vault payload | `bytes public` — readable blob | `euint128 private` x2 — **opaque** |
+| Claim check | `msg.sender == heir` | `FHE.eq()` — **encrypted comparison** |
+| Failed claim | Heir was already public | Reveals **nothing** |
+
+### Two-Phase Claim Flow
+
+```
+Heir calls initiateClaim(encryptedAddress)
+        |
+        v
+  FHE.eq(claimerEncrypted, encryptedHeir)  ← comparison on ciphertext
+        |
+        v
+  Threshold network decrypts ebool result
+        |
+        v
+  finalizeClaim(true, signature)
+        |
+        v
+  FHE.allow(payloadHi, heir) + FHE.allow(payloadLo, heir)
+        |
+        v
+  Heir decrypts 256-bit vault key via CoFHE SDK
+```
+
+### Quick Start (FHE)
+
+```bash
+npm install
+npx hardhat compile    # Compiles with @cofhe/hardhat-plugin
+npx hardhat test       # 7 tests — privacy verification + ABI checks
+```
+
+### FHE Tech Stack
+
+- **Fhenix CoFHE** — `eaddress`, `euint128`, `ebool` encrypted types
+- **Hardhat + @cofhe/hardhat-plugin** — Local mock CoFHE environment
+- **CoFHE SDK** — Client-side encryption for contract inputs
+- **React + ethers.js** — Heir claim portal ([`claim-portal/`](claim-portal/))
+
+---
+
+## Original Contract (Plaintext)
 
 ## Overview
 
