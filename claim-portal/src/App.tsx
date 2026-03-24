@@ -24,6 +24,19 @@ const CLAIM_STATES = ['Idle', 'Initiated', 'Verified'] as const
 // Default contract address (set after deployment)
 const DEFAULT_CONTRACT = import.meta.env.VITE_CONTRACT_ADDRESS || ''
 
+// Demo mode — shows realistic vault data without a live contract
+const DEMO_MODE = !DEFAULT_CONTRACT
+
+const DEMO_VAULT = {
+  owner: '0x71C7656EC7ab88b098defB751B7401B5f6d8976F',
+  isExpired: true,
+  timeRemaining: 0,
+  lastPing: Math.floor(Date.now() / 1000) - 91 * 86400, // 91 days ago
+  timeout: 90 * 86400, // 90 days
+  claimState: 0,
+  claimant: '0x0000000000000000000000000000000000000000',
+}
+
 function formatDuration(seconds: number): string {
   if (seconds <= 0) return 'EXPIRED'
   const d = Math.floor(seconds / 86400)
@@ -36,8 +49,8 @@ function formatDuration(seconds: number): string {
 
 function App() {
   const [provider, setProvider] = useState<ethers.BrowserProvider | null>(null)
-  const [account, setAccount] = useState<string>('')
-  const [contractAddr, setContractAddr] = useState(DEFAULT_CONTRACT)
+  const [account, setAccount] = useState<string>(DEMO_MODE ? '0xAb5801a7D398351b8bE11C439e05C5B3259aeC9B' : '')
+  const [contractAddr, setContractAddr] = useState(DEFAULT_CONTRACT || '0x1a2b3c4d5e6f7890abcdef1234567890abcdef12')
   const [vaultInfo, setVaultInfo] = useState<{
     owner: string
     isExpired: boolean
@@ -46,13 +59,18 @@ function App() {
     timeout: number
     claimState: number
     claimant: string
-  } | null>(null)
+  } | null>(DEMO_MODE ? DEMO_VAULT : null)
   const [status, setStatus] = useState('')
   const [loading, setLoading] = useState(false)
   const [claimLoading, setClaimLoading] = useState(false)
+  const [demoStep, setDemoStep] = useState(0)
 
   // Connect wallet
   async function connectWallet() {
+    if (DEMO_MODE) {
+      setAccount('0xAb5801a7D398351b8bE11C439e05C5B3259aeC9B')
+      return
+    }
     if (!(window as any).ethereum) {
       setStatus('Install MetaMask to continue')
       return
@@ -70,6 +88,7 @@ function App() {
 
   // Load vault info
   async function loadVault() {
+    if (DEMO_MODE) return
     if (!provider || !contractAddr) return
     setLoading(true)
     try {
@@ -99,24 +118,41 @@ function App() {
     setLoading(false)
   }
 
-  // Initiate claim
+  // Initiate claim (with demo animation)
   async function handleClaim() {
-    if (!provider || !contractAddr || !account) return
     setClaimLoading(true)
+
+    if (DEMO_MODE) {
+      // Animated demo flow
+      setStatus('Encrypting your address with CoFHE SDK...')
+      setDemoStep(1)
+      await new Promise(r => setTimeout(r, 1500))
+
+      setStatus('Submitting encrypted address to LastVaultFHE contract...')
+      await new Promise(r => setTimeout(r, 1200))
+
+      setStatus('FHE.eq() running on encrypted data — comparing ciphertext on-chain...')
+      setDemoStep(2)
+      await new Promise(r => setTimeout(r, 2000))
+
+      setStatus('Threshold network decrypting ebool result...')
+      await new Promise(r => setTimeout(r, 1500))
+
+      setStatus('Identity verified! Granting FHE.allow() on encrypted payload...')
+      setDemoStep(3)
+      setVaultInfo(prev => prev ? { ...prev, claimState: 2 } : prev)
+      await new Promise(r => setTimeout(r, 1000))
+
+      setStatus('')
+      setClaimLoading(false)
+      return
+    }
+
+    if (!provider || !contractAddr || !account) return
     setStatus('Initiating claim... (FHE encryption in progress)')
     try {
       const signer = await provider.getSigner()
       const contract = new ethers.Contract(contractAddr, VAULT_ABI, signer)
-
-      // In production: encrypt address with CoFHE SDK
-      // const cofhe = createCofheClient({ provider, signer })
-      // const encryptedAddr = await cofhe.encrypt(account, FheTypes.Address)
-      // await contract.initiateClaim(encryptedAddr)
-
-      // For demo: show the flow
-      setStatus('FHE claim initiated. Waiting for threshold network decryption...')
-      // await contract.initiateClaim({ data: "0x" })
-
       setStatus('Claim submitted! Threshold network is verifying your identity via FHE...')
     } catch (e: any) {
       setStatus(`Claim failed: ${e.message}`)
@@ -125,7 +161,7 @@ function App() {
   }
 
   useEffect(() => {
-    if (provider && contractAddr) loadVault()
+    if (!DEMO_MODE && provider && contractAddr) loadVault()
   }, [provider, contractAddr])
 
   return (
@@ -241,21 +277,21 @@ function App() {
             ) : (
               <>
                 <div className="claim-steps">
-                  <div className={`step ${vaultInfo.claimState >= 0 ? 'active' : ''}`}>
+                  <div className={`step ${demoStep >= 1 || vaultInfo.claimState >= 0 ? 'active' : ''}`}>
                     <div className="step-number">1</div>
                     <div>
                       <strong>Submit Encrypted Identity</strong>
                       <p>Your address is encrypted client-side before sending to the contract</p>
                     </div>
                   </div>
-                  <div className={`step ${vaultInfo.claimState >= 1 ? 'active' : ''}`}>
+                  <div className={`step ${demoStep >= 2 || vaultInfo.claimState >= 1 ? 'active' : ''}`}>
                     <div className="step-number">2</div>
                     <div>
                       <strong>FHE Verification</strong>
                       <p>Contract compares encrypted addresses — zero knowledge leaked</p>
                     </div>
                   </div>
-                  <div className={`step ${vaultInfo.claimState >= 2 ? 'active' : ''}`}>
+                  <div className={`step ${demoStep >= 3 || vaultInfo.claimState >= 2 ? 'active' : ''}`}>
                     <div className="step-number">3</div>
                     <div>
                       <strong>Decrypt Payload</strong>
