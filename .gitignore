@@ -1,15 +1,16 @@
 # Compiler output
 cache/
+cache-hardhat/
 out/
+artifacts/
+typechain-types/
 
 # Ignores development broadcast logs
 broadcast/
-
-# Docs
-docs/
 
 # Dotenv file
 .env
 
 # Dependencies
 lib/
+node_modules/

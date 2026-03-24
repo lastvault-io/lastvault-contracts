@@ -1,0 +1,24 @@
+{
+  "name": "lastvault-contracts-fhe",
+  "version": "1.0.0",
+  "description": "LastVault Inheritance — FHE-encrypted DMS contract (Fhenix Buildathon)",
+  "scripts": {
+    "compile": "npx hardhat compile",
+    "test": "npx hardhat test",
+    "deploy:sepolia": "npx hardhat run scripts/deploy-fhe.ts --network sepolia",
+    "deploy:arb-sepolia": "npx hardhat run scripts/deploy-fhe.ts --network arbitrumSepolia",
+    "deploy:base-sepolia": "npx hardhat run scripts/deploy-fhe.ts --network baseSepolia"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "@types/node": "^20.0.0",
+    "hardhat": "^2.22.0",
+    "ts-node": "^10.9.0",
+    "typescript": "^5.4.0"
+  },
+  "dependencies": {
+    "@cofhe/hardhat-plugin": "^0.4.0",
+    "@cofhe/sdk": "latest",
+    "@fhenixprotocol/cofhe-contracts": "latest"
+  }
+}
