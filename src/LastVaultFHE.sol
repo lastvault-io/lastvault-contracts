@@ -24,12 +24,21 @@ import {FHE, euint128, eaddress, ebool, InEaddress, InEuint128} from "@fhenixpro
  *    5. Threshold network decrypts the boolean; heir calls finalizeClaim()
  *    6. If verified, heir gets FHE.allow() on payload — can decrypt via SDK
  *
+ *  Security fixes (v1.1 — 2026-03-24):
+ *    - [H-05] Reentrancy: Checks-Effects-Interactions pattern in finalizeClaim()
+ *    - [H-06] Ownership: 2-step ownership transfer (transferOwnership + acceptOwnership)
+ *    - [M-05] Oracle attack: MAX_CLAIM_ATTEMPTS = 3 to prevent heir address brute-force
+ *    - [M-06] Timestamp: Minimum timeout period >= 1 day
+ *    - [L-01] Gas: timeoutPeriod marked immutable
+ *    - [L-02] Event: Pinged emitted in updatePayload()
+ *
  *  Fhenix Buildathon — Wave 1 submission (Mar 21-28, 2026)
  */
 contract LastVaultFHE {
     // ============ State ============
 
     address public owner;
+    address public pendingOwner;
 
     /// @dev Heir address encrypted — hidden from chain observers
     eaddress private encryptedHeir;
@@ -41,7 +50,7 @@ contract LastVaultFHE {
 
     /// @dev Plaintext timestamps — needed for block.timestamp comparison
     uint256 public lastPingTimestamp;
-    uint256 public timeoutPeriod;
+    uint256 public immutable timeoutPeriod;
 
     /// @dev Claim state machine
     enum ClaimState { Idle, Initiated, Verified }
@@ -53,6 +62,10 @@ contract LastVaultFHE {
     /// @dev The address that initiated the claim (for granting access)
     address public claimant;
 
+    /// @dev Claim attempt tracking — prevents heir address oracle attack
+    uint256 public claimAttempts;
+    uint256 public constant MAX_CLAIM_ATTEMPTS = 3;
+
     // ============ Events ============
 
     event Pinged(address indexed owner, uint256 timestamp);
@@ -61,6 +74,8 @@ contract LastVaultFHE {
     event ClaimInitiated(address indexed claimant, uint256 timestamp);
     event ClaimVerified(address indexed heir, uint256 timestamp);
     event ClaimRejected(uint256 timestamp);
+    event OwnershipTransferStarted(address indexed previousOwner, address indexed newOwner);
+    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
 
     // ============ Modifiers ============
 
@@ -77,7 +92,7 @@ contract LastVaultFHE {
     // ============ Constructor ============
 
     /**
-     * @param _timeoutPeriod  Seconds before heir can claim (e.g. 7776000 = 90 days)
+     * @param _timeoutPeriod  Seconds before heir can claim (min 1 day, e.g. 7776000 = 90 days)
      * @param _encryptedHeir  Client-encrypted heir address (via CoFHE SDK)
      * @param _payloadHi      Upper 128 bits of encrypted vault key
      * @param _payloadLo      Lower 128 bits of encrypted vault key
@@ -88,7 +103,7 @@ contract LastVaultFHE {
         InEuint128 memory _payloadHi,
         InEuint128 memory _payloadLo
     ) {
-        require(_timeoutPeriod > 0, "LastVault: Timeout must be > 0");
+        require(_timeoutPeriod >= 1 days, "LastVault: Timeout must be >= 1 day");
 
         owner = msg.sender;
         timeoutPeriod = _timeoutPeriod;
@@ -135,13 +150,31 @@ contract LastVaultFHE {
 
         lastPingTimestamp = block.timestamp; // reset timer on update
         emit PayloadUpdated(block.timestamp);
+        emit Pinged(msg.sender, block.timestamp); // [L-02] explicit ping event
     }
 
     /// @notice Owner can cancel a pending claim (before finalization)
-    function cancelClaim() external onlyOwner {
+    function cancelClaim() external onlyOwner notClaimed {
         require(claimState == ClaimState.Initiated, "LastVault: No pending claim");
         claimState = ClaimState.Idle;
         claimant = address(0);
+    }
+
+    // ============ Ownership Transfer (2-step) ============
+
+    /// @notice Start ownership transfer — new owner must call acceptOwnership()
+    function transferOwnership(address _newOwner) external onlyOwner {
+        require(_newOwner != address(0), "LastVault: Invalid address");
+        pendingOwner = _newOwner;
+        emit OwnershipTransferStarted(owner, _newOwner);
+    }
+
+    /// @notice Complete ownership transfer — must be called by pending owner
+    function acceptOwnership() external {
+        require(msg.sender == pendingOwner, "LastVault: Not pending owner");
+        emit OwnershipTransferred(owner, pendingOwner);
+        owner = pendingOwner;
+        pendingOwner = address(0);
     }
 
     // ============ Heir Claim Flow (2-phase) ============
@@ -150,6 +183,7 @@ contract LastVaultFHE {
      * @notice Phase 1: Heir initiates claim by submitting their encrypted address.
      *         The contract performs an FHE equality check against the stored heir.
      *         The result (ebool) is marked for async decryption by the threshold network.
+     *         Limited to MAX_CLAIM_ATTEMPTS to prevent heir address oracle attack.
      * @param _myAddress  The claimant's address, encrypted client-side via CoFHE SDK
      */
     function initiateClaim(InEaddress calldata _myAddress) external {
@@ -158,7 +192,9 @@ contract LastVaultFHE {
             "LastVault: Timeout not reached"
         );
         require(claimState == ClaimState.Idle, "LastVault: Claim already in progress");
+        require(claimAttempts < MAX_CLAIM_ATTEMPTS, "LastVault: Max claim attempts reached");
 
+        claimAttempts++;
         claimant = msg.sender;
         claimState = ClaimState.Initiated;
 
@@ -178,10 +214,12 @@ contract LastVaultFHE {
     /**
      * @notice Phase 2: After the threshold network decrypts the ebool,
      *         the claimant publishes the result and (if true) gets payload access.
+     *         Follows Checks-Effects-Interactions pattern to prevent reentrancy.
      * @param _isHeir     The decrypted boolean from threshold network
      * @param _signature  Threshold signature proving authentic decryption
      */
     function finalizeClaim(bool _isHeir, bytes memory _signature) external {
+        // CHECKS
         require(claimState == ClaimState.Initiated, "LastVault: No pending claim");
         require(msg.sender == claimant, "LastVault: Not the claimant");
         require(
@@ -189,24 +227,29 @@ contract LastVaultFHE {
             "LastVault: Timeout not reached"
         );
 
-        // Publish the decryption result with threshold signature verification
+        // Cache claimant before state changes
+        address verifiedClaimant = claimant;
+
+        // EFFECTS — state changes BEFORE external calls
+        if (!_isHeir) {
+            claimState = ClaimState.Idle;
+            claimant = address(0);
+        } else {
+            claimState = ClaimState.Verified;
+        }
+
+        // INTERACTIONS — external calls AFTER state changes
         FHE.publishDecryptResult(heirVerificationResult, _isHeir, _signature);
 
         if (!_isHeir) {
-            // Not the heir — reset state, allow retry by actual heir
-            claimState = ClaimState.Idle;
-            claimant = address(0);
             emit ClaimRejected(block.timestamp);
             return;
         }
 
-        // Verified heir — grant decryption access to the encrypted payload
-        claimState = ClaimState.Verified;
+        FHE.allow(payloadHi, verifiedClaimant);
+        FHE.allow(payloadLo, verifiedClaimant);
 
-        FHE.allow(payloadHi, claimant);
-        FHE.allow(payloadLo, claimant);
-
-        emit ClaimVerified(claimant, block.timestamp);
+        emit ClaimVerified(verifiedClaimant, block.timestamp);
     }
 
     // ============ View Helpers ============
@@ -221,5 +264,11 @@ contract LastVaultFHE {
         uint256 deadline = lastPingTimestamp + timeoutPeriod;
         if (block.timestamp >= deadline) return 0;
         return deadline - block.timestamp;
+    }
+
+    /// @notice Remaining claim attempts before lockout
+    function remainingClaimAttempts() external view returns (uint256) {
+        if (claimAttempts >= MAX_CLAIM_ATTEMPTS) return 0;
+        return MAX_CLAIM_ATTEMPTS - claimAttempts;
     }
 }
