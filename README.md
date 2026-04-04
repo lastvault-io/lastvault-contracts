@@ -200,6 +200,7 @@ The `encryptedPayload` stored on-chain is an ECIES bundle:
 - **Desktop App** — .NET 9 MAUI Blazor Hybrid (Windows, macOS planned)
 - **Mobile App** — Android (push approval, BLE pairing, PIN lock)
 - **Hardware Security Key** — Custom USB security key with secure element + NFC
+- **FHE Claim Portal** — [lastvault.io/fhenix](https://lastvault.io/fhenix/) (Fhenix FHE heir claim UI)
 - **Heir Portal** — [heir.lastvault.io](https://heir.lastvault.io)
 - **Standalone Claim** — [lastvault-claim](https://github.com/lastvault-io/lastvault-claim) (works without LastVault servers)
 - **Website** — [lastvault.io](https://lastvault.io)

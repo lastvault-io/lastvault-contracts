@@ -152,7 +152,7 @@ function App() {
     setStatus('Initiating claim... (FHE encryption in progress)')
     try {
       const signer = await provider.getSigner()
-      const contract = new ethers.Contract(contractAddr, VAULT_ABI, signer)
+      void new ethers.Contract(contractAddr, VAULT_ABI, signer)
       setStatus('Claim submitted! Threshold network is verifying your identity via FHE...')
     } catch (e: any) {
       setStatus(`Claim failed: ${e.message}`)
