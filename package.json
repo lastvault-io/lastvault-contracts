@@ -5,13 +5,16 @@
   "scripts": {
     "compile": "npx hardhat compile",
     "test": "npx hardhat test",
-    "deploy:sepolia": "npx hardhat run scripts/deploy-fhe.ts --network sepolia",
-    "deploy:arb-sepolia": "npx hardhat run scripts/deploy-fhe.ts --network arbitrumSepolia",
-    "deploy:base-sepolia": "npx hardhat run scripts/deploy-fhe.ts --network baseSepolia"
+    "deploy:arb-sepolia": "npx hardhat run scripts/encrypt-and-deploy.ts --network arbitrumSepolia",
+    "deploy:sepolia": "npx hardhat run scripts/encrypt-and-deploy.ts --network sepolia",
+    "deploy:base-sepolia": "npx hardhat run scripts/encrypt-and-deploy.ts --network baseSepolia",
+    "verify:arb-sepolia": "npx hardhat verify --network arbitrumSepolia",
+    "verify:sepolia": "npx hardhat verify --network sepolia"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",
     "@types/node": "^20.0.0",
+    "dotenv": "^16.6.1",
     "hardhat": "^2.22.0",
     "ts-node": "^10.9.0",
     "typescript": "^5.4.0"
