@@ -1,13 +1,13 @@
 # LastVault FHE — Security Audit Report (Free / Internal)
 
 **Date:** 2026-03-24
-**Auditor:** AI-assisted static analysis + manual review
+**Auditor:** Static analysis + manual review
 **Scope:** `src/LastVaultFHE.sol` (225 lines) + comparison with `src/LastVaultInheritance.sol` (112 lines)
 **Tools used:** Slither v0.11.5, manual line-by-line review, OWASP Smart Contract Top 10
 **Severity scale:** Critical > High > Medium > Low > Informational
 
-> **Disclaimer:** This is an automated + AI-assisted audit, NOT a professional security audit.
-> Before mainnet deployment, a human auditor with FHE expertise should review this contract.
+> **Disclaimer:** This is an internal audit, NOT a professional third-party security audit.
+> Before mainnet deployment, an auditor with FHE expertise should review this contract.
 
 ---
 
