@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { BrowserProvider } from 'ethers'
+import { Wave3Panel } from './Wave3Panel'
 import './App.css'
+import './Wave3.css'
 
 const CONTRACT_ADDRESS = import.meta.env.VITE_CONTRACT_ADDRESS || ''
 const TOUR_KEY = 'lastvault_tour_seen'
@@ -153,7 +155,7 @@ function Starfield() {
   return <canvas ref={canvasRef} style={{ position:'fixed', inset:0, zIndex:0 }} />
 }
 
-type MainTab = 'home' | 'owner' | 'heir' | 'docs'
+type MainTab = 'home' | 'owner' | 'heir' | 'wave3' | 'docs'
 type OwnerTab = 'overview' | 'deploy' | 'manage'
 type DocsTab = 'overview' | 'architecture' | 'privacy' | 'setup'
 
@@ -309,6 +311,7 @@ function App() {
   const [docsTab, setDocsTab] = useState<DocsTab>('overview')
   const [account, setAccount] = useState('')
   const [chainId, setChainId] = useState('')
+  const [balance, setBalance] = useState('')
   const [status, setStatus] = useState('')
   const [demoStep, setDemoStep] = useState(0)
   const [claimLoading, setClaimLoading] = useState(false)
@@ -394,6 +397,10 @@ function App() {
       const network = await provider.getNetwork()
       setAccount(accounts[0])
       setChainId(network.chainId.toString())
+      try {
+        const bal = await provider.getBalance(accounts[0])
+        setBalance((Number(bal) / 1e18).toFixed(4))
+      } catch { /* ignore */ }
       eth.on('accountsChanged', (accs: string[]) => setAccount(accs[0] || ''))
       eth.on('chainChanged', () => window.location.reload())
     } catch { setStatus('Wallet connection cancelled') }
@@ -430,13 +437,13 @@ function App() {
         <header className="header">
           <div className="header-pill">
             <div className="header-logo">
-              <img src={import.meta.env.BASE_URL + 'logo.svg'} alt="LastVault" style={{height:22}} />
+              <img src={import.meta.env.BASE_URL + 'logo.svg'} alt="LastVault" style={{height:28}} />
             </div>
 
             <div className="header-divider" />
 
             <nav className="header-nav">
-              {([['home','Home'],['owner','Owner'],['heir','Heir'],['docs','Docs']] as [MainTab,string][]).map(([k,v]) => (
+              {([['home','Home'],['owner','Owner'],['heir','Heir'],['wave3','Wave 3'],['docs','Docs']] as [MainTab,string][]).map(([k,v]) => (
                 <button key={k} className={mainTab===k?'active':''} onClick={()=>setMainTab(k)} data-tour={`nav-${k}`}>{v}</button>
               ))}
             </nav>
@@ -514,20 +521,41 @@ function App() {
                   <div className="grid-3">
                     <div className="stat-box">
                       <div className="stat-label">Wallet</div>
-                      <div className="stat-value">{account ? `${account.slice(0,8)}...` : 'Connect from nav'}</div>
+                      <div className="stat-value">{account ? `${account.slice(0,6)}...${account.slice(-4)}` : 'Connect from nav'}</div>
                     </div>
                     <div className="stat-box">
-                      <div className="stat-label">Owner Role</div>
-                      <div className="stat-value">{account ? 'Ready' : 'Waiting'}</div>
+                      <div className="stat-label">Network</div>
+                      <div className="stat-value">{chainId === '421614' ? 'Arb Sepolia' : chainId ? `Chain ${chainId}` : 'Not set'}</div>
                     </div>
                     <div className="stat-box">
-                      <div className="stat-label">CoFHE</div>
-                      <div className="stat-value">{account ? 'Initialized' : 'Not initialized'}</div>
+                      <div className="stat-label">Balance</div>
+                      <div className="stat-value">{balance ? `${balance} ETH` : '—'}</div>
                     </div>
                   </div>
                   {CONTRACT_ADDRESS && (
-                    <div className="info-box live" style={{marginTop:16}}>
-                      Live contract: {CONTRACT_ADDRESS}
+                    <div className="info-box live" style={{marginTop:16, display:'flex', flexDirection:'column', gap:6}}>
+                      <div>
+                        Live contract:{' '}
+                        <a
+                          href={`https://sepolia.arbiscan.io/address/${CONTRACT_ADDRESS}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          style={{color:'var(--accent)', textDecoration:'underline', fontFamily:'JetBrains Mono, monospace'}}
+                        >{CONTRACT_ADDRESS}</a>
+                      </div>
+                      <div style={{fontSize:11, color:'var(--text-secondary)'}}>
+                        <a
+                          href={`https://sepolia.arbiscan.io/address/${CONTRACT_ADDRESS}`}
+                          target="_blank" rel="noreferrer"
+                          style={{color:'var(--text-secondary)', textDecoration:'underline'}}
+                        >Arbiscan</a>
+                        {' · '}
+                        <a
+                          href={`https://repo.sourcify.dev/421614/${CONTRACT_ADDRESS}`}
+                          target="_blank" rel="noreferrer"
+                          style={{color:'var(--text-secondary)', textDecoration:'underline'}}
+                        >Sourcify verified source</a>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -563,17 +591,24 @@ function App() {
                 <div className="card">
                   <div className="card-title">Arbitrum Sepolia Readiness</div>
                   <div className="card-desc">Pre-flight checks before deployment.</div>
-                  {[
-                    ['Wallet connected', account ? 'yes' : 'no'],
-                    ['Network is Arb Sepolia', chainId === '421614' ? 'yes' : 'no'],
-                    ['CoFHE initialized', 'no'],
-                    ['ETH balance sufficient', 'no'],
-                  ].map(([label, val]) => (
-                    <div className="status-row" key={label}>
-                      <span className="label">{label}</span>
-                      <span className={`val ${val}`}>{val === 'yes' ? 'Yes' : 'Pending'}</span>
-                    </div>
-                  ))}
+                  {(() => {
+                    const isArbSepolia = chainId === '421614'
+                    const balanceNum = parseFloat(balance || '0')
+                    const hasEnoughEth = balanceNum >= 0.01
+                    const cofheReady = !!account && isArbSepolia
+                    const checks: [string, boolean, string][] = [
+                      ['Wallet connected', !!account, account ? 'Yes' : 'Pending'],
+                      ['Network is Arb Sepolia', isArbSepolia, isArbSepolia ? 'Yes' : chainId ? `Chain ${chainId}` : 'Pending'],
+                      ['CoFHE initialized', cofheReady, cofheReady ? 'Ready' : 'Pending'],
+                      ['ETH balance sufficient', hasEnoughEth, balance ? `${balance} ETH` : 'Pending'],
+                    ]
+                    return checks.map(([label, ok, text]) => (
+                      <div className="status-row" key={label}>
+                        <span className="label">{label}</span>
+                        <span className={`val ${ok ? 'yes' : 'no'}`}>{text}</span>
+                      </div>
+                    ))
+                  })()}
                 </div>
               </div>
             )}
@@ -677,6 +712,20 @@ function App() {
                 </div>
               </div>
             </div>
+          </div>
+        )}
+
+        {/* ═══ WAVE 3 TAB ═══ */}
+        {mainTab === 'wave3' && (
+          <div className="page">
+            <div className="page-center">
+              <div className="page-badge">Wave 3 Submission</div>
+              <h1 className="page-title">Multi-Heir + <span style={{color:'var(--accent)'}}>Selective Disclosure</span> + ReineiraOS Bridge</h1>
+              <p className="page-subtitle">
+                N-of-M threshold inheritance with encrypted weights. Auditor permits without identity disclosure. Confidential escrow released by FHE claim verification. Reusable encrypted allowlist primitive.
+              </p>
+            </div>
+            <Wave3Panel />
           </div>
         )}
 
