@@ -1,6 +1,6 @@
 # LastVault Buildathon Tracker
 
-**Last updated:** 2026-03-24
+**Last updated:** 2026-04-29
 **Owner:** Hasan Aytekin — Divara Technology Inc.
 **Repo:** https://github.com/lastvault-io/lastvault-contracts
 **Website:** https://lastvault.io
@@ -26,8 +26,8 @@
 | Wave | Build Period | Deadline | Grant | Status | Deliverables |
 |------|-------------|----------|-------|--------|-------------|
 | **Wave 1** | Mar 21 — 28 | **Mar 28** | $3,000 | ✅ SUBMITTED | FHE contract + 7 tests + claim portal + videos |
-| **Wave 2** | Mar 30 — Apr 6 | **Apr 6** | $5,000 | ⏳ NEXT | Testnet deploy + CoFHE SDK e2e flow |
-| **Wave 3** | Apr 8 — May 8 | **May 8** | $12,000 | ⏳ | Multi-heir + selective disclosure + Privara |
+| **Wave 2** | Mar 30 — Apr 6 | **Apr 6** | $5,000 | ✅ SUBMITTED | 12 FHE ops + 24 tests + full claim portal + spotlight tour + Arb Sepolia runbook |
+| **Wave 3** | Apr 8 — May 8 | **May 8** | $12,000 | ✅ DEPLOYED (ready to submit) | Multi-heir threshold + Selective disclosure + Encrypted allowlist primitive + ReineiraOS bridge + E2E Arb Sepolia deploy |
 | **Wave 4** | May 11 — 20 | **May 20** | $14,000 | ⏳ | Cross-chain bridge + institutional mode |
 | **Wave 5** | May 23 — Jun 1 | **Jun 1** | $16,000 | ⏳ | Production-ready + audit + NY Tech Week |
 
@@ -43,20 +43,38 @@
 - Full submission docs on AKINDO
 - GitHub pushed + README updated
 
-### Wave 2 — TODO (Apr 6 deadline)
+### Wave 2 — SUBMITTED (Apr 6)
 
-- [ ] Deploy LastVaultFHE to testnet (Sepolia / Arb Sepolia / Base Sepolia)
-- [ ] End-to-end CoFHE SDK flow (encrypt address client-side → claim → decrypt payload)
-- [ ] Connect claim portal to live deployed contract
-- [ ] Desktop app integration with Fhenix network
-- [ ] Update AKINDO with testnet contract address + live demo link
+**Architectural rebuild based on Wave 1 feedback. Went from 3 FHE operations to 12.**
 
-### Wave 3 — TODO (May 8 deadline) — MARATHON, $12K
+- [x] Encrypted timestamps (`euint64`) — no behavioral profiling
+- [x] Encrypted claim attempts (`euint8`) — attacker can't count
+- [x] Encrypted timeout period (`euint64`) — DMS window hidden
+- [x] Encrypted max attempts (`euint8`) — limit unknown
+- [x] `FHE.select()` pattern — eliminates `require()` info leak
+- [x] `FHE.and()` compound boolean — single opaque pass/fail
+- [x] @cofhejs → @cofhe/sdk migration (deprecation)
+- [x] 24 passing Hardhat tests
+- [x] Full claim portal: Owner/Heir/Docs sections + spotlight onboarding tour + canvas starfield
+- [x] Live: https://lastvault.io/fhenix/
+- [x] Arbitrum Sepolia deploy runbook
+- [x] ACL_LIFECYCLE.md + REINEIRA_BRIDGE.md docs
 
-- [ ] Multi-heir support (encrypted heir array)
-- [ ] Selective disclosure (prove identity to auditor, not public)
-- [ ] Privara SDK for confidential payments
-- [ ] Full React frontend with CoFHE hooks (useEncrypt, useDecrypt)
+### Wave 3 — IN PROGRESS (May 8 deadline) — MARATHON, $12K
+
+**5 features, all from W2 "What's next" — full implementation, no shortcuts:**
+
+- [ ] **Multi-heir threshold recovery** — N-of-M heirs with encrypted weights. Threshold itself hidden via FHE. `eaddress[] encryptedHeirs` + `euint8 encryptedThreshold`. Each heir contributes encrypted weight, FHE.add() accumulates, FHE.gte() checks against hidden threshold.
+- [ ] **Selective disclosure for executors** — FHE permits for auditors. Auditor verifies "claim was processed correctly" without seeing heir identity or payload. Uses CoFHE permit system for view-only access.
+- [ ] **Encrypted Allowlist Primitive** — Extract `FHE.eq(eaddress, eaddress)` identity matching into reusable Solidity library `EncryptedAllowlist.sol`. Generalizes inheritance pattern to any on-chain encrypted access control.
+- [ ] **ReineiraOS escrow bridge** — `ConfidentialEscrow` integration. Payload release gated by FHE claim verification. Architecture from W2 docs/REINEIRA_BRIDGE.md, now full implementation.
+- [ ] **End-to-end testnet demo** — Deploy all W3 contracts to Arbitrum Sepolia. Full flow: deploy → multi-heir setup → encrypted weights → claim → threshold decrypt → audit verify. Recorded video.
+- [x] Update claim portal with W3 features (Wave3Panel + 5 sub-tabs)
+- [x] Deploy to Arbitrum Sepolia (Apr 30, 2026):
+    - LastVaultMultiHeir: `0x46DC02eb7914848425383C1d030D0D9daEEaD92e`
+    - SelectiveDisclosure: `0xF23774a8c8a4A4FdA675EA56e44Ee7B4B07fDc36`
+    - ConfidentialEscrow: `0xFF45f218B57366b4e8192cB8324F5fB89dc6099D` (funded 0.01 ETH)
+- [ ] Submit on AKINDO with new contract addresses + demo video
 
 ### Wave 4 — TODO (May 20 deadline)
 
