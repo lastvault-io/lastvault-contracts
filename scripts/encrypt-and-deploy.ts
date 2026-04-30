@@ -1,8 +1,8 @@
 /**
  * LastVaultFHE — Encrypt & Deploy (Wave 2)
  *
- * Full deployment flow with @cofhe/sdk client-side encryption.
- * Updated for the new builder-pattern API (migrated from cofhejs).
+ * Real testnet deployment with @cofhe/sdk client-side encryption.
+ * Uses viem for the CoFHE client, ethers (via Hardhat) for contract deployment.
  *
  * Required env (see .env.example):
  *   PRIVATE_KEY      — deployer wallet private key
@@ -12,24 +12,19 @@
  *   MAX_ATTEMPTS     — max claim attempts (default: 3)
  *
  * Usage:
- *   npm run deploy:arb-sepolia       # PRIMARY — Fhenix CoFHE flagship testnet
- *   npm run deploy:sepolia           # Fallback — Ethereum Sepolia
- *
- * ─────────────────────────────────────────────────────────────────────
- * SDK API verified against @cofhe/sdk migration guide (Apr 2026):
- *   https://cofhe-docs.fhenix.zone/client-sdk/introduction/migrating-from-cofhejs.md
- *   https://cofhe-docs.fhenix.zone/client-sdk/reference/sdk-reference.md
- * ─────────────────────────────────────────────────────────────────────
+ *   npm run deploy:arb-sepolia
  */
 
 import { ethers, network } from "hardhat";
 import * as dotenv from "dotenv";
+import { createCofheClient, createCofheConfig } from "@cofhe/sdk/node";
+import { Encryptable } from "@cofhe/sdk";
+import { arbSepolia, sepolia as fhenixSepolia } from "@cofhe/sdk/chains";
+import { createPublicClient, createWalletClient, http } from "viem";
+import { privateKeyToAccount } from "viem/accounts";
+import { arbitrumSepolia, sepolia } from "viem/chains";
 
 dotenv.config();
-
-// @cofhe/sdk — new builder-pattern API
-// NOTE: If running via Hardhat with @cofhe/hardhat-plugin, use hre.cofhe instead
-// import { createCofheConfig, createCofheClient, Encryptable } from "@cofhe/sdk/node";
 
 interface DeployConfig {
   heirAddress: string;
@@ -64,14 +59,21 @@ function explorerUrl(net: string, address: string): string {
   const explorers: Record<string, string> = {
     arbitrumSepolia: `https://sepolia.arbiscan.io/address/${address}`,
     sepolia: `https://sepolia.etherscan.io/address/${address}`,
-    baseSepolia: `https://sepolia.basescan.org/address/${address}`,
   };
   return explorers[net] || address;
 }
 
-async function main() {
-  const hre = await import("hardhat");
+function getChainsForNetwork(netName: string) {
+  if (netName === "arbitrumSepolia") {
+    return { fheChain: arbSepolia, viemChain: arbitrumSepolia };
+  }
+  if (netName === "sepolia") {
+    return { fheChain: fhenixSepolia, viemChain: sepolia };
+  }
+  throw new Error(`Unsupported network: ${netName}. Use arbitrumSepolia or sepolia.`);
+}
 
+async function main() {
   console.log("=".repeat(60));
   console.log("LastVaultFHE — Encrypt & Deploy (Wave 2)");
   console.log("Private Identity Verification Primitive on Fhenix CoFHE");
@@ -97,46 +99,51 @@ async function main() {
   console.log(`Heir (plaintext, will be FHE-encrypted): ${cfg.heirAddress}`);
   console.log(`Timeout: ${cfg.timeoutSeconds}s (${cfg.timeoutSeconds / 86400} days)`);
   console.log(`Max attempts: ${cfg.maxAttempts}`);
-  console.log(`Payload Hi: 0x${keyHi.toString(16).padStart(32, "0")}`);
-  console.log(`Payload Lo: 0x${keyLo.toString(16).padStart(32, "0")}`);
 
-  // ─────────────────────────────────────────────────────────────────
-  // Client-side encryption via @cofhe/sdk (or Hardhat plugin)
-  // ─────────────────────────────────────────────────────────────────
-  console.log("\n--- Encrypting via @cofhe/sdk ---");
+  // ─── Set up viem clients for CoFHE ───
+  const pk = process.env.PRIVATE_KEY!;
+  const privateKey = (pk.startsWith("0x") ? pk : `0x${pk}`) as `0x${string}`;
+  const account = privateKeyToAccount(privateKey);
+  const { fheChain, viemChain } = getChainsForNetwork(network.name);
 
-  // When running through Hardhat with @cofhe/hardhat-plugin:
-  const client = await hre.cofhe.createClientWithBatteries(deployer);
+  const publicClient = createPublicClient({
+    chain: viemChain,
+    transport: http(),
+  });
 
-  // Encrypt all constructor inputs
-  const [encHeir] = await client
-    .encryptInputs([{ type: "address", value: cfg.heirAddress }])
-    .execute();
-  console.log("  Heir address encrypted (InEaddress)");
+  const walletClient = createWalletClient({
+    account,
+    chain: viemChain,
+    transport: http(),
+  });
 
-  const [encPayloadHi] = await client
-    .encryptInputs([{ type: "uint128", value: keyHi }])
-    .execute();
+  // ─── Initialize CoFHE client ───
+  console.log("\n--- Initializing @cofhe/sdk client ---");
+  const config = createCofheConfig({
+    supportedChains: [fheChain],
+  });
+  const client = createCofheClient(config);
+  await client.connect(publicClient as any, walletClient as any);
+  console.log("  Connected to CoFHE coprocessor");
+
+  // ─── Encrypt all constructor inputs ───
+  console.log("\n--- Encrypting inputs client-side ---");
+  const [encHeir, encPayloadHi, encPayloadLo, encTimeout, encMaxAttempts] =
+    await client.encryptInputs([
+      Encryptable.address(cfg.heirAddress as `0x${string}`),
+      Encryptable.uint128(keyHi),
+      Encryptable.uint128(keyLo),
+      Encryptable.uint64(BigInt(cfg.timeoutSeconds)),
+      Encryptable.uint8(BigInt(cfg.maxAttempts)),
+    ]).execute();
+
+  console.log("  Heir encrypted (InEaddress)");
   console.log("  Payload Hi encrypted (InEuint128)");
-
-  const [encPayloadLo] = await client
-    .encryptInputs([{ type: "uint128", value: keyLo }])
-    .execute();
   console.log("  Payload Lo encrypted (InEuint128)");
-
-  const [encTimeout] = await client
-    .encryptInputs([{ type: "uint64", value: BigInt(cfg.timeoutSeconds) }])
-    .execute();
   console.log("  Timeout encrypted (InEuint64)");
-
-  const [encMaxAttempts] = await client
-    .encryptInputs([{ type: "uint8", value: BigInt(cfg.maxAttempts) }])
-    .execute();
   console.log("  Max attempts encrypted (InEuint8)");
 
-  // ─────────────────────────────────────────────────────────────────
-  // Deploy
-  // ─────────────────────────────────────────────────────────────────
+  // ─── Deploy ───
   console.log("\n--- Deploying LastVaultFHE ---");
 
   const Factory = await ethers.getContractFactory("LastVaultFHE");
@@ -149,7 +156,8 @@ async function main() {
     encMaxAttempts
   );
 
-  console.log(`Deploy tx: ${vault.deploymentTransaction()?.hash}`);
+  const deployTxHash = vault.deploymentTransaction()?.hash;
+  console.log(`Deploy tx: ${deployTxHash}`);
   console.log("Waiting for confirmation...");
   await vault.waitForDeployment();
 
@@ -166,7 +174,6 @@ async function main() {
   console.log(`Timeout:   [FHE-ENCRYPTED — ${cfg.timeoutSeconds}s plaintext helper]`);
   console.log(`Attempts:  [FHE-ENCRYPTED — max ${cfg.maxAttempts}]`);
 
-  // Deployment receipt
   const receipt = {
     network: network.name,
     chainId: network.config.chainId,
@@ -176,7 +183,7 @@ async function main() {
     deployer: deployer.address,
     timeoutSeconds: cfg.timeoutSeconds,
     maxAttempts: cfg.maxAttempts,
-    txHash: vault.deploymentTransaction()?.hash,
+    txHash: deployTxHash,
     explorer: explorerUrl(network.name, address),
     deployedAt: new Date().toISOString(),
     fheOps: [
@@ -186,7 +193,7 @@ async function main() {
     ],
   };
 
-  console.log("\n--- Deployment Receipt (save this for W2 submission) ---");
+  console.log("\n--- Deployment Receipt (save for W2 submission) ---");
   console.log(JSON.stringify(receipt, null, 2));
 }
 
