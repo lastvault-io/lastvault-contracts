@@ -1,6 +1,6 @@
 # LastVault Buildathon Tracker
 
-**Last updated:** 2026-04-29
+**Last updated:** 2026-05-24
 **Owner:** Hasan Aytekin — Divara Technology Inc.
 **Repo:** https://github.com/lastvault-io/lastvault-contracts
 **Website:** https://lastvault.io
@@ -27,9 +27,9 @@
 |------|-------------|----------|-------|--------|-------------|
 | **Wave 1** | Mar 21 — 28 | **Mar 28** | $3,000 | ✅ SUBMITTED | FHE contract + 7 tests + claim portal + videos |
 | **Wave 2** | Mar 30 — Apr 6 | **Apr 6** | $5,000 | ✅ SUBMITTED | 12 FHE ops + 24 tests + full claim portal + spotlight tour + Arb Sepolia runbook |
-| **Wave 3** | Apr 8 — May 8 | **May 8** | $12,000 | ✅ DEPLOYED (ready to submit) | Multi-heir threshold + Selective disclosure + Encrypted allowlist primitive + ReineiraOS bridge + E2E Arb Sepolia deploy |
-| **Wave 4** | May 11 — 20 | **May 20** | $14,000 | ⏳ | Cross-chain bridge + institutional mode |
-| **Wave 5** | May 23 — Jun 1 | **Jun 1** | $16,000 | ⏳ | Production-ready + audit + NY Tech Week |
+| **Wave 3** | Apr 8 — May 8 | **May 8** | $12,000 | ✅ SUBMITTED | Multi-heir threshold + Selective disclosure + Encrypted allowlist primitive + ReineiraOS bridge + E2E Arb Sepolia deploy |
+| **Wave 4** | May 11 — 20 | **May 20** | $14,000 | ❌ MISSED | (consolidated into Wave 5) |
+| **Wave 5** | May 23 — Jun 1 | **Jun 1** | $16,000 | ✅ SUBMITTED (May 24) | Cross-chain claim relay + FHE multi-sig + 2 npm packages + auditor SDK + ReentrancyGuard hardening + 160 tests |
 
 ### Wave 1 — Submitted (Mar 24)
 

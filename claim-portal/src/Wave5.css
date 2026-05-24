@@ -1,0 +1,185 @@
+/* Wave5Panel scoped styles — same family as Wave3.css */
+
+.w5-panel { max-width: 960px; margin: 32px auto; padding: 0 16px; font-family: 'Inter', system-ui, sans-serif; }
+.w5-header { text-align: center; margin-bottom: 24px; }
+.w5-header h2 {
+  font-size: 1.4rem; font-weight: 700;
+  background: linear-gradient(135deg, #a5b4fc, #34d399, #c084fc);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.w5-subtitle { color: rgba(255,255,255,0.6); font-size: 0.85rem; max-width: 720px; margin: 8px auto 0; }
+
+.w5-subtabs { display: flex; justify-content: center; gap: 4px; margin-bottom: 24px; flex-wrap: wrap; }
+.w5-subtab {
+  padding: 8px 16px; background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08); border-radius: 8px;
+  color: rgba(255,255,255,0.6); font-size: 0.85rem; font-weight: 600;
+  cursor: pointer; transition: all 0.2s;
+}
+.w5-subtab:hover { background: rgba(255,255,255,0.08); color: white; }
+.w5-subtab.active {
+  background: linear-gradient(135deg, #a5b4fc, #34d399);
+  color: #0a0a14; border-color: transparent;
+}
+
+.w5-card {
+  background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 14px; padding: 24px;
+}
+.w5-card h3 { font-size: 1.15rem; font-weight: 700; margin-bottom: 8px; color: white; }
+.w5-card h4 { font-size: 0.95rem; font-weight: 600; margin: 16px 0 8px; color: rgba(255,255,255,0.85); }
+.w5-desc { color: rgba(255,255,255,0.65); font-size: 0.85rem; line-height: 1.6; margin-bottom: 20px; }
+.w5-card-inner {
+  background: rgba(255,255,255,0.03); border-radius: 10px; padding: 16px;
+}
+
+.w5-feature-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 20px;
+}
+@media (max-width: 720px) { .w5-feature-grid { grid-template-columns: 1fr; } }
+.w5-feature-card {
+  background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 10px; padding: 16px;
+}
+.w5-feature-icon { font-size: 1.5rem; color: #34d399; margin-bottom: 8px; }
+.w5-feature-card h4 { font-size: 0.95rem; margin: 0 0 6px; color: white; }
+.w5-feature-card p { color: rgba(255,255,255,0.6); font-size: 0.78rem; line-height: 1.5; }
+.w5-feature-ops { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 4px; }
+.w5-op-chip {
+  background: rgba(52,211,153,0.12); border: 1px solid rgba(52,211,153,0.25);
+  color: #34d399; font-size: 0.7rem; padding: 2px 8px; border-radius: 6px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.w5-progression { list-style: none; padding: 0; margin: 0; }
+.w5-progression li {
+  padding: 8px 0; color: rgba(255,255,255,0.7); font-size: 0.85rem;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.w5-progression li:last-child { border-bottom: none; }
+.w5-tag {
+  display: inline-block; font-size: 0.7rem; font-weight: 700;
+  padding: 2px 8px; border-radius: 6px; margin-right: 8px;
+}
+.w5-tag.wave1 { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.5); }
+.w5-tag.wave2 { background: rgba(165,180,252,0.12); color: #a5b4fc; }
+.w5-tag.wave3 { background: rgba(192,132,252,0.18); color: #c084fc; }
+.w5-tag.wave5 {
+  background: linear-gradient(135deg, #a5b4fc, #34d399);
+  color: #0a0a14;
+}
+
+.w5-stat-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+  margin: 12px 0 16px;
+}
+@media (max-width: 720px) { .w5-stat-grid { grid-template-columns: 1fr; } }
+.w5-stat {
+  background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 8px; padding: 10px 14px;
+}
+.w5-stat label {
+  display: block; font-size: 0.7rem; color: rgba(255,255,255,0.5);
+  text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;
+}
+.w5-stat strong, .w5-stat span, .w5-stat code {
+  font-size: 0.85rem; color: white; font-family: 'JetBrains Mono', monospace;
+}
+.w5-encrypted { color: #c084fc !important; font-family: 'JetBrains Mono', monospace; font-size: 0.78rem !important; }
+
+.w5-btn, .w5-btn-mini {
+  padding: 8px 14px; background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1); border-radius: 8px;
+  color: white; font-size: 0.82rem; font-weight: 600; cursor: pointer;
+  transition: all 0.2s;
+}
+.w5-btn-mini { padding: 4px 10px; font-size: 0.72rem; }
+.w5-btn:hover { background: rgba(255,255,255,0.12); }
+.w5-btn.primary {
+  background: linear-gradient(135deg, #a5b4fc, #34d399);
+  color: #0a0a14; border-color: transparent;
+}
+.w5-btn.primary:hover { filter: brightness(1.1); }
+
+.w5-code { margin-top: 20px; }
+.w5-code pre {
+  background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 8px; padding: 14px; overflow-x: auto;
+  font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; line-height: 1.6;
+  color: rgba(255,255,255,0.85);
+}
+
+/* Cross-chain diagram */
+.w5-chain-diagram {
+  display: grid; grid-template-columns: 1fr auto 1fr; gap: 16px;
+  align-items: stretch; margin-top: 16px;
+}
+@media (max-width: 720px) { .w5-chain-diagram { grid-template-columns: 1fr; } }
+.w5-chain {
+  background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px; padding: 14px; transition: all 0.3s;
+}
+.w5-chain.active {
+  background: rgba(52,211,153,0.06); border-color: rgba(52,211,153,0.4);
+}
+.w5-chain h4 { color: #34d399; margin-bottom: 8px; font-size: 0.85rem; }
+.w5-chain-step {
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 6px; padding: 6px 10px; font-size: 0.78rem;
+  color: rgba(255,255,255,0.9); margin: 6px 0; font-family: 'JetBrains Mono', monospace;
+}
+.w5-chain-step.success {
+  background: rgba(52,211,153,0.12); border-color: rgba(52,211,153,0.35); color: #34d399;
+}
+.w5-chain-arrow {
+  font-size: 0.7rem; color: rgba(255,255,255,0.5); margin-left: 8px;
+}
+.w5-chain-bridge {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  background: rgba(165,180,252,0.04); border: 1px solid rgba(165,180,252,0.15);
+  border-radius: 10px; padding: 14px; transition: all 0.3s;
+}
+.w5-chain-bridge.active {
+  background: rgba(165,180,252,0.12); border-color: rgba(165,180,252,0.4);
+}
+.w5-bridge-label { color: #a5b4fc; font-size: 0.78rem; font-weight: 700; margin-bottom: 8px; }
+.w5-bridge-arrow { font-size: 1.6rem; color: #a5b4fc; margin: 8px 0; }
+.w5-bridge-info { color: rgba(255,255,255,0.55); font-size: 0.7rem; text-align: center; line-height: 1.5; }
+
+/* Multi-sig session display */
+.w5-session {
+  background: rgba(165,180,252,0.04); border: 1px solid rgba(165,180,252,0.15);
+  border-radius: 10px; padding: 16px;
+}
+.w5-session-row {
+  display: grid; grid-template-columns: 220px 1fr; gap: 12px;
+  padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
+  font-size: 0.85rem;
+}
+.w5-session-row:last-child { border-bottom: none; }
+.w5-session-row label { color: rgba(255,255,255,0.6); font-size: 0.78rem; }
+
+.w5-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.w5-result {
+  padding: 16px; border-radius: 10px; margin-top: 16px;
+}
+.w5-result.ok {
+  background: rgba(52,211,153,0.08); border: 1px solid rgba(52,211,153,0.3);
+}
+.w5-result.warn {
+  background: rgba(251,191,36,0.08); border: 1px solid rgba(251,191,36,0.3);
+}
+.w5-result h4 { color: white; margin: 0 0 6px; }
+.w5-result p { color: rgba(255,255,255,0.7); font-size: 0.8rem; margin-bottom: 12px; }
+
+/* Install box */
+.w5-install-box {
+  display: flex; align-items: center; gap: 8px;
+  background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px; padding: 10px 14px; margin: 16px 0;
+}
+.w5-install-box code {
+  flex: 1; color: #34d399; font-family: 'JetBrains Mono', monospace; font-size: 0.78rem;
+  overflow-x: auto; white-space: nowrap;
+}

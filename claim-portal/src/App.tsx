@@ -1,8 +1,10 @@
 import { useState, useEffect, useRef } from 'react'
 import { BrowserProvider } from 'ethers'
 import { Wave3Panel } from './Wave3Panel'
+import { Wave5Panel } from './Wave5Panel'
 import './App.css'
 import './Wave3.css'
+import './Wave5.css'
 
 const CONTRACT_ADDRESS = import.meta.env.VITE_CONTRACT_ADDRESS || ''
 const TOUR_KEY = 'lastvault_tour_seen'
@@ -155,7 +157,7 @@ function Starfield() {
   return <canvas ref={canvasRef} style={{ position:'fixed', inset:0, zIndex:0 }} />
 }
 
-type MainTab = 'home' | 'owner' | 'heir' | 'wave3' | 'docs'
+type MainTab = 'home' | 'owner' | 'heir' | 'wave3' | 'wave5' | 'docs'
 type OwnerTab = 'overview' | 'deploy' | 'manage'
 type DocsTab = 'overview' | 'architecture' | 'privacy' | 'setup'
 
@@ -443,7 +445,7 @@ function App() {
             <div className="header-divider" />
 
             <nav className="header-nav">
-              {([['home','Home'],['owner','Owner'],['heir','Heir'],['wave3','Wave 3'],['docs','Docs']] as [MainTab,string][]).map(([k,v]) => (
+              {([['home','Home'],['owner','Owner'],['heir','Heir'],['wave3','Wave 3'],['wave5','Wave 5'],['docs','Docs']] as [MainTab,string][]).map(([k,v]) => (
                 <button key={k} className={mainTab===k?'active':''} onClick={()=>setMainTab(k)} data-tour={`nav-${k}`}>{v}</button>
               ))}
             </nav>
@@ -726,6 +728,20 @@ function App() {
               </p>
             </div>
             <Wave3Panel />
+          </div>
+        )}
+
+        {/* ═══ WAVE 5 TAB ═══ */}
+        {mainTab === 'wave5' && (
+          <div className="page">
+            <div className="page-center">
+              <div className="page-badge">Wave 5 Submission</div>
+              <h1 className="page-title">Cross-Chain + <span style={{color:'var(--accent)'}}>FHE Multi-Sig</span> + NPM Package + Auditor SDK</h1>
+              <p className="page-subtitle">
+                The final wave. Cross-chain trigger relay, encrypted institutional multi-sig, reusable npm primitives, and a single-import auditor SDK. Plus production hardening with ReentrancyGuard and 160+ tests.
+              </p>
+            </div>
+            <Wave5Panel />
           </div>
         )}
 

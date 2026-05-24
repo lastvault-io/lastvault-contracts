@@ -1,0 +1,52 @@
+{
+  "name": "@lastvault/encrypted-allowlist",
+  "version": "0.1.0-beta.1",
+  "description": "Reusable encrypted access-control library for Fhenix CoFHE — the first general-purpose encrypted allowlist primitive. Built and battle-tested as part of LastVault FHE.",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    },
+    "./contracts/EncryptedAllowlist.sol": "./contracts/EncryptedAllowlist.sol",
+    "./contracts/EncryptedAllowlistBase.sol": "./contracts/EncryptedAllowlistBase.sol",
+    "./abi": "./dist/abi.json"
+  },
+  "files": [
+    "dist",
+    "contracts",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "fhe",
+    "fhenix",
+    "cofhe",
+    "encrypted",
+    "allowlist",
+    "privacy",
+    "access-control",
+    "solidity",
+    "ethereum"
+  ],
+  "author": "Divara Technology Inc. (lastvault.io)",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lastvault-io/lastvault-contracts.git",
+    "directory": "packages/encrypted-allowlist"
+  },
+  "homepage": "https://github.com/lastvault-io/lastvault-contracts/tree/master/packages/encrypted-allowlist",
+  "bugs": {
+    "url": "https://github.com/lastvault-io/lastvault-contracts/issues"
+  },
+  "peerDependencies": {
+    "@fhenixprotocol/cofhe-contracts": "^0.1.3"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
