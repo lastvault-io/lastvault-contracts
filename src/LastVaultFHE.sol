@@ -2,6 +2,7 @@
 pragma solidity ^0.8.25;
 
 import {FHE, euint8, euint64, euint128, eaddress, ebool, InEuint8, InEuint64, InEuint128, InEaddress} from "@fhenixprotocol/cofhe-contracts/FHE.sol";
+import {ReentrancyGuard} from "./utils/ReentrancyGuard.sol";
 
 /**
  * @title LastVaultFHE
@@ -57,7 +58,7 @@ import {FHE, euint8, euint64, euint128, eaddress, ebool, InEuint8, InEuint64, In
  *  Fhenix Buildathon — Wave 2 submission (April 2026)
  *  Wave 1 feedback addressed: deeper FHE usage, ACL hardening, privacy model docs
  */
-contract LastVaultFHE {
+contract LastVaultFHE is ReentrancyGuard {
     // ============ Encrypted State ============
 
     address public owner;
@@ -255,7 +256,7 @@ contract LastVaultFHE {
      *
      * @param _myAddress  Claimant's address, encrypted client-side via @cofhe/sdk
      */
-    function initiateClaim(InEaddress calldata _myAddress) external {
+    function initiateClaim(InEaddress calldata _myAddress) external nonReentrant {
         // Plaintext state checks (these don't leak sensitive info)
         require(claimState == ClaimState.Idle, "LastVault: Claim in progress");
 
@@ -337,7 +338,7 @@ contract LastVaultFHE {
      * @param _verified  The decrypted compound boolean
      * @param _signature Threshold network signature proving authentic decryption
      */
-    function finalizeClaim(bool _verified, bytes memory _signature) external {
+    function finalizeClaim(bool _verified, bytes memory _signature) external nonReentrant {
         // CHECKS
         require(claimState == ClaimState.Initiated, "LastVault: No pending claim");
         require(msg.sender == claimant, "LastVault: Not the claimant");

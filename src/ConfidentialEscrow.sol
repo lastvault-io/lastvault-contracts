@@ -2,6 +2,7 @@
 pragma solidity ^0.8.25;
 
 import {FHE, eaddress, euint128, ebool, InEaddress, InEuint128} from "@fhenixprotocol/cofhe-contracts/FHE.sol";
+import {ReentrancyGuard} from "./utils/ReentrancyGuard.sol";
 
 /**
  * @title ConfidentialEscrow
@@ -61,7 +62,7 @@ interface IInheritanceVerifier {
     function getVerifiedClaimant() external view returns (eaddress);
 }
 
-contract ConfidentialEscrow {
+contract ConfidentialEscrow is ReentrancyGuard {
     // ============ State ============
 
     address public owner;
@@ -148,7 +149,7 @@ contract ConfidentialEscrow {
 
     /// @notice Owner can reclaim funds if no claim is in progress and no
     ///         release is pending. Useful for cancellation/expiry.
-    function reclaim() external onlyOwner notReleased {
+    function reclaim() external nonReentrant onlyOwner notReleased {
         require(!releasePending, "Escrow: release in progress");
         uint256 amt = escrowAmount;
         escrowAmount = 0;
@@ -172,6 +173,7 @@ contract ConfidentialEscrow {
      */
     function initiateRelease(InEaddress calldata _myAddress)
         external
+        nonReentrant
         notReleased
     {
         require(!releasePending, "Escrow: release pending");
@@ -213,7 +215,7 @@ contract ConfidentialEscrow {
      *         ebool, the releaser publishes it. If true, funds are sent
      *         to msg.sender.
      */
-    function finalizeRelease(bool _authorized, bytes memory _signature) external {
+    function finalizeRelease(bool _authorized, bytes memory _signature) external nonReentrant {
         require(releasePending, "Escrow: no pending release");
         require(msg.sender == pendingReleaser, "Escrow: not pending releaser");
         require(!released, "Escrow: already released");

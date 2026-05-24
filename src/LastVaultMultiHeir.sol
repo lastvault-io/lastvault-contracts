@@ -3,6 +3,7 @@ pragma solidity ^0.8.25;
 
 import {FHE, euint8, euint64, euint128, eaddress, ebool, InEuint8, InEuint64, InEuint128, InEaddress} from "@fhenixprotocol/cofhe-contracts/FHE.sol";
 import {EncryptedAllowlist} from "./EncryptedAllowlist.sol";
+import {ReentrancyGuard} from "./utils/ReentrancyGuard.sol";
 
 /**
  * @title LastVaultMultiHeir
@@ -46,7 +47,7 @@ import {EncryptedAllowlist} from "./EncryptedAllowlist.sol";
  *      The same FHE primitive (FHE.eq + FHE.add + FHE.gte) generalizes to any
  *      threshold-based encrypted access control.
  */
-contract LastVaultMultiHeir {
+contract LastVaultMultiHeir is ReentrancyGuard {
     using EncryptedAllowlist for EncryptedAllowlist.List;
 
     // ============ Encrypted State ============
@@ -266,7 +267,7 @@ contract LastVaultMultiHeir {
      *
      * @param _myAddress  Caller's address, encrypted client-side.
      */
-    function startClaimSession(InEaddress calldata _myAddress) external sessionInactive {
+    function startClaimSession(InEaddress calldata _myAddress) external nonReentrant sessionInactive {
         require(_heirs.size() > 0, "MultiHeir: no heirs configured");
 
         // Encrypted timeout check (W2 pattern carried forward)
@@ -324,7 +325,7 @@ contract LastVaultMultiHeir {
      *  Each call adds the declarant's encrypted weight to the running total
      *  (in ciphertext). The threshold check is recomputed via FHE.gte.
      */
-    function declareHeir(InEaddress calldata _myAddress) external {
+    function declareHeir(InEaddress calldata _myAddress) external nonReentrant {
         require(_session.active, "MultiHeir: no active session");
         require(!_session.hasDeclared[msg.sender], "MultiHeir: already declared");
 
@@ -361,7 +362,7 @@ contract LastVaultMultiHeir {
      * @notice Phase 3: Submit decrypted threshold result. If true, payload
      *         access is granted to the session initiator.
      */
-    function finalizeClaim(bool _verified, bytes memory _signature) external {
+    function finalizeClaim(bool _verified, bytes memory _signature) external nonReentrant {
         require(_session.active, "MultiHeir: no active session");
         require(!_session.finalized, "MultiHeir: already finalized");
         require(msg.sender == _session.initiator, "MultiHeir: not initiator");
