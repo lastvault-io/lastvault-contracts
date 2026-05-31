@@ -1,6 +1,6 @@
 # LastVault Buildathon Tracker
 
-**Last updated:** 2026-05-24
+**Last updated:** 2026-06-01
 **Owner:** Hasan Aytekin — Divara Technology Inc.
 **Repo:** https://github.com/lastvault-io/lastvault-contracts
 **Website:** https://lastvault.io
@@ -29,7 +29,7 @@
 | **Wave 2** | Mar 30 — Apr 6 | **Apr 6** | $5,000 | ✅ SUBMITTED | 12 FHE ops + 24 tests + full claim portal + spotlight tour + Arb Sepolia runbook |
 | **Wave 3** | Apr 8 — May 8 | **May 8** | $12,000 | ✅ SUBMITTED | Multi-heir threshold + Selective disclosure + Encrypted allowlist primitive + ReineiraOS bridge + E2E Arb Sepolia deploy |
 | **Wave 4** | May 11 — 20 | **May 20** | $14,000 | ❌ MISSED | (consolidated into Wave 5) |
-| **Wave 5** | May 23 — Jun 1 | **Jun 1** | $16,000 | ✅ SUBMITTED (May 24, npm PUBLISHED May 31) | Cross-chain claim relay + FHE multi-sig + 2 npm packages live + auditor SDK + ReentrancyGuard hardening + 160 tests. Packages: [@lastvault.io/encrypted-allowlist](https://www.npmjs.com/package/@lastvault.io/encrypted-allowlist) + [@lastvault.io/auditor-sdk](https://www.npmjs.com/package/@lastvault.io/auditor-sdk) |
+| **Wave 5** | May 23 — Jun 1 | **Jun 1** | $16,000 | ✅ SUBMITTED + LIVE CROSS-CHAIN (Jun 1) | Cross-chain claim relay LIVE on Arb Sepolia source + [Base Sepolia dest](https://sepolia.basescan.org/address/0x9aB36a8C893830b6c7Ef565d52408f8Bb4d9a052) + FHE multi-sig + 2 npm packages live + auditor SDK + ReentrancyGuard hardening + 160 tests. Packages: [@lastvault.io/encrypted-allowlist](https://www.npmjs.com/package/@lastvault.io/encrypted-allowlist) + [@lastvault.io/auditor-sdk](https://www.npmjs.com/package/@lastvault.io/auditor-sdk) |
 
 ### Wave 1 — Submitted (Mar 24)
 
