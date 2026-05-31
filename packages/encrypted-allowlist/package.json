@@ -1,6 +1,6 @@
 {
-  "name": "@lastvault/encrypted-allowlist",
-  "version": "0.1.0-beta.1",
+  "name": "@lastvault.io/encrypted-allowlist",
+  "version": "0.1.0",
   "description": "Reusable encrypted access-control library for Fhenix CoFHE — the first general-purpose encrypted allowlist primitive. Built and battle-tested as part of LastVault FHE.",
   "main": "dist/index.js",
   "module": "dist/index.mjs",

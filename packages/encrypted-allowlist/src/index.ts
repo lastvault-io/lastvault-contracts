@@ -1,5 +1,5 @@
 /**
- * @lastvault/encrypted-allowlist
+ * @lastvault.io/encrypted-allowlist
  *
  * TypeScript SDK helpers for the EncryptedAllowlist Solidity library.
  *
@@ -9,7 +9,7 @@
  *
  * Usage:
  *   import { EncryptedAllowlistBase_ABI, encryptAddress, isAddressInAllowlist }
- *     from '@lastvault/encrypted-allowlist';
+ *     from '@lastvault.io/encrypted-allowlist';
  */
 
 import baseAbi from "../dist/EncryptedAllowlistBase.abi.json";

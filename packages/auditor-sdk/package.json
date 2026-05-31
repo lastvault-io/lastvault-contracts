@@ -1,6 +1,6 @@
 {
-  "name": "@lastvault/auditor-sdk",
-  "version": "0.1.0-beta.1",
+  "name": "@lastvault.io/auditor-sdk",
+  "version": "0.1.0",
   "description": "TypeScript SDK for SelectiveDisclosure auditors. Enumerate encrypted attestations and decrypt allowed fields via per-auditor FHE permits with a single import.",
   "main": "dist/index.js",
   "module": "dist/index.mjs",

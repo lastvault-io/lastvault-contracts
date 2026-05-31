@@ -7,7 +7,7 @@ import { useState } from 'react'
  *   1. Cross-Chain Claim Relay (source/destination architecture)
  *   2. Encrypted Institutional Multi-Sig (eaddress[] signers + hidden threshold)
  *   3. Auditor TypeScript SDK
- *   4. @lastvault/encrypted-allowlist npm package
+ *   4. @lastvault.io/encrypted-allowlist npm package
  */
 
 type W5SubTab = 'overview' | 'crosschain' | 'multisig' | 'sdk' | 'npm'
@@ -82,13 +82,13 @@ function OverviewSection() {
           icon="◇"
           title="Auditor TypeScript SDK"
           desc="Reduces auditor onboarding from 200+ lines of CoFHE boilerplate to three method calls: listAttestations, decryptVerifiedStatus, countVerifiedOfKind. Handles permits, expiry retries, chain config, and the CoFHE handshake under the hood."
-          ops={['@lastvault/auditor-sdk', 'Permit caching', 'Auto-retry']}
+          ops={['@lastvault.io/auditor-sdk', 'Permit caching', 'Auto-retry']}
         />
         <W5Card
           icon="◈"
           title="NPM Package"
-          desc="EncryptedAllowlist published as @lastvault/encrypted-allowlist — the first reusable encrypted access-control primitive on Fhenix. Plus a companion auditor SDK. Both shared back to the Fhenix ecosystem for any builder to compose."
-          ops={['@lastvault/encrypted-allowlist', 'README + examples', 'Production-tested']}
+          desc="EncryptedAllowlist published as @lastvault.io/encrypted-allowlist — the first reusable encrypted access-control primitive on Fhenix. Plus a companion auditor SDK. Both shared back to the Fhenix ecosystem for any builder to compose."
+          ops={['@lastvault.io/encrypted-allowlist', 'README + examples', 'Production-tested']}
         />
       </div>
 
@@ -372,12 +372,12 @@ function AuditorSDKSection() {
 
       <div className="w5-code">
         <h4>Install</h4>
-        <pre>npm install @lastvault/auditor-sdk @cofhe/sdk ethers viem</pre>
+        <pre>npm install @lastvault.io/auditor-sdk @cofhe/sdk ethers viem</pre>
       </div>
 
       <div className="w5-code">
         <h4>Use</h4>
-        <pre>{`import { LastVaultAuditor } from '@lastvault/auditor-sdk';
+        <pre>{`import { LastVaultAuditor } from '@lastvault.io/auditor-sdk';
 
 const auditor = new LastVaultAuditor({
   rpcUrl: 'https://sepolia-rollup.arbitrum.io/rpc',
@@ -429,14 +429,14 @@ function NpmPackageSection() {
   const [copied, setCopied] = useState(false)
 
   function copyInstall() {
-    navigator.clipboard.writeText('npm install @lastvault/encrypted-allowlist @fhenixprotocol/cofhe-contracts')
+    navigator.clipboard.writeText('npm install @lastvault.io/encrypted-allowlist @fhenixprotocol/cofhe-contracts')
     setCopied(true)
     setTimeout(() => setCopied(false), 1500)
   }
 
   return (
     <div className="w5-card">
-      <h3>@lastvault/encrypted-allowlist NPM Package</h3>
+      <h3>@lastvault.io/encrypted-allowlist NPM Package</h3>
       <p className="w5-desc">
         The first reusable encrypted access-control primitive on Fhenix CoFHE — extracted from the
         Wave 3 LastVault inheritance suite and published as a standalone npm package. Any Fhenix
@@ -444,7 +444,7 @@ function NpmPackageSection() {
       </p>
 
       <div className="w5-install-box">
-        <code>npm install @lastvault/encrypted-allowlist @fhenixprotocol/cofhe-contracts</code>
+        <code>npm install @lastvault.io/encrypted-allowlist @fhenixprotocol/cofhe-contracts</code>
         <button className="w5-btn-mini" onClick={copyInstall}>
           {copied ? '✓ Copied' : 'Copy'}
         </button>
@@ -452,7 +452,7 @@ function NpmPackageSection() {
 
       <div className="w5-code">
         <h4>Use as a library</h4>
-        <pre>{`import {EncryptedAllowlist} from "@lastvault/encrypted-allowlist/contracts/EncryptedAllowlist.sol";
+        <pre>{`import {EncryptedAllowlist} from "@lastvault.io/encrypted-allowlist/contracts/EncryptedAllowlist.sol";
 
 contract MyPrivateDAO {
     using EncryptedAllowlist for EncryptedAllowlist.List;

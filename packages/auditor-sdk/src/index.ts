@@ -1,11 +1,11 @@
 /**
- * @lastvault/auditor-sdk
+ * @lastvault.io/auditor-sdk
  *
  * Single-import TypeScript helper for auditors of LastVault SelectiveDisclosure
  * contracts. Wraps the CoFHE SDK so auditors don't need to read 200+ lines of
  * @cofhe/sdk docs to enumerate attestations and decrypt allowed fields.
  *
- *   import { LastVaultAuditor } from '@lastvault/auditor-sdk';
+ *   import { LastVaultAuditor } from '@lastvault.io/auditor-sdk';
  *
  *   const auditor = new LastVaultAuditor({
  *     rpcUrl: 'https://sepolia-rollup.arbitrum.io/rpc',

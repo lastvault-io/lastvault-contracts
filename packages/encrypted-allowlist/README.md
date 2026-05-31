@@ -1,4 +1,4 @@
-# @lastvault/encrypted-allowlist
+# @lastvault.io/encrypted-allowlist
 
 > The first reusable encrypted access-control primitive for **Fhenix CoFHE**.
 
@@ -23,7 +23,7 @@ Anywhere you'd put a plaintext `mapping(address => bool) public allowlist`, you 
 ## Install
 
 ```bash
-npm install @lastvault/encrypted-allowlist @fhenixprotocol/cofhe-contracts
+npm install @lastvault.io/encrypted-allowlist @fhenixprotocol/cofhe-contracts
 ```
 
 Or with Foundry:
@@ -39,7 +39,7 @@ forge install lastvault-io/lastvault-contracts
 ```solidity
 pragma solidity ^0.8.25;
 
-import {EncryptedAllowlist} from "@lastvault/encrypted-allowlist/contracts/EncryptedAllowlist.sol";
+import {EncryptedAllowlist} from "@lastvault.io/encrypted-allowlist/contracts/EncryptedAllowlist.sol";
 import {FHE, InEaddress, ebool} from "@fhenixprotocol/cofhe-contracts/FHE.sol";
 
 contract MyPrivateDAO {
@@ -69,7 +69,7 @@ contract MyPrivateDAO {
 The package also ships an `EncryptedAllowlistBase` abstract contract with an ownership pattern baked in:
 
 ```solidity
-import {EncryptedAllowlistBase} from "@lastvault/encrypted-allowlist/contracts/EncryptedAllowlistBase.sol";
+import {EncryptedAllowlistBase} from "@lastvault.io/encrypted-allowlist/contracts/EncryptedAllowlistBase.sol";
 
 contract MyPrivateGuild is EncryptedAllowlistBase {
     constructor(address _owner) EncryptedAllowlistBase(_owner) {}

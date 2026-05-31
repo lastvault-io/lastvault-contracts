@@ -1,4 +1,4 @@
-# @lastvault/auditor-sdk
+# @lastvault.io/auditor-sdk
 
 > **Audit FHE-protected attestations in 3 lines of TypeScript.**
 
@@ -13,7 +13,7 @@ Built on top of [Fhenix CoFHE](https://cofhe-docs.fhenix.zone) and the LastVault
 The CoFHE SDK is powerful but learning to use it for audit-only reads takes a few hundred lines of boilerplate (permits, decryption, retry on expiry, chain config). This SDK reduces auditor onboarding to:
 
 ```typescript
-import { LastVaultAuditor } from '@lastvault/auditor-sdk';
+import { LastVaultAuditor } from '@lastvault.io/auditor-sdk';
 
 const auditor = new LastVaultAuditor({
   rpcUrl: 'https://sepolia-rollup.arbitrum.io/rpc',
@@ -33,7 +33,7 @@ That's it. The SDK handles permit caching, expiry retries, chain config, and the
 ## Install
 
 ```bash
-npm install @lastvault/auditor-sdk @cofhe/sdk ethers viem
+npm install @lastvault.io/auditor-sdk @cofhe/sdk ethers viem
 ```
 
 The CoFHE SDK, ethers, and viem are listed as peer dependencies so they share versions with your existing setup.
@@ -119,4 +119,4 @@ MIT — see [LICENSE](./LICENSE).
 
 - 🔗 Main repo: [lastvault-io/lastvault-contracts](https://github.com/lastvault-io/lastvault-contracts)
 - 🌐 Live demo: [lastvault.io/fhenix](https://lastvault.io/fhenix)
-- 📚 Companion package: [`@lastvault/encrypted-allowlist`](../encrypted-allowlist)
+- 📚 Companion package: [`@lastvault.io/encrypted-allowlist`](../encrypted-allowlist)

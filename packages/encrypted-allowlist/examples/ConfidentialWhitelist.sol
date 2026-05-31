@@ -2,7 +2,7 @@
 pragma solidity ^0.8.25;
 
 import {FHE, InEaddress, ebool} from "@fhenixprotocol/cofhe-contracts/FHE.sol";
-import {EncryptedAllowlistBase} from "@lastvault/encrypted-allowlist/contracts/EncryptedAllowlistBase.sol";
+import {EncryptedAllowlistBase} from "@lastvault.io/encrypted-allowlist/contracts/EncryptedAllowlistBase.sol";
 
 /**
  * @title ConfidentialWhitelist
